@@ -1,4 +1,4 @@
-dash-fcast==0.0.2
+dash-fcast==0.0.3
 gunicorn>=20.0.4
 hemlock-survey>=0.0.19
 psycopg2>=2.8.4
