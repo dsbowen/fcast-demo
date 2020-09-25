@@ -6,7 +6,12 @@ import dash_fcast.distributions as dist
 import dash_html_components as html
 import plotly.graph_objects as go
 from dash.dependencies import Input, Output, State
+from dash_table.Format import Format, Scheme
 from hemlock import Dashboard
+
+import json
+
+DASHBOARD_SRC = '/fcast/'
 
 def create_fcast_app(server=None):
     if server is None:
@@ -17,96 +22,75 @@ def create_fcast_app(server=None):
     else:
         app = dash.Dash(
             server=server,
-            routes_pathname_prefix='/fcast/',
+            routes_pathname_prefix=DASHBOARD_SRC,
             external_stylesheets=[dbc.themes.BOOTSTRAP]
         )
 
     app.layout = html.Div([
         dcc.Location(id='url', refresh=False),
-        html.Div(id='record-response'),
         dbc.Row([
             dbc.Col([
                 dbc.Card([
                     dbc.CardHeader('Enter your forecast here'),
-                    dbc.CardBody([
-                        dist.Moments('Forecast')
-                    ])
+                    dbc.CardBody(id='elicitation')
                 ], className='h-100')
             ]),
             dbc.Col([
-                dbc.Card([
-                    dbc.CardHeader('Your forecast in bins'),
-                    dbc.CardBody([
-                        fcast.Table(
-                            'Table',
-                            datatable={
-                                'editable': True, 'row_deletable': True
-                            },
-                            row_addable=True
-                        )
-                    ])
-                ], className='h-100')
-                    
+                html.Div(id='graphs')
             ])
-        ]),
-        html.Div(id='graphs')
+        ])
     ], className='container')
 
-    dist.Moments.register_callbacks(app)
-    fcast.Table.register_callbacks(app)
+    Table.register_callbacks(app)
 
     @app.callback(
-        Output('record-response', 'children'),
-        [Input(dist.Moments.get_id('Forecast', 'update'), 'n_clicks')],
-        [
-            State('url', 'search'),
-            State(dist.Moments.get_id('Forecast', 'lb'), 'value'),
-            State(dist.Moments.get_id('Forecast', 'ub'), 'value'),
-            State(dist.Moments.get_id('Forecast', 'mean'), 'value'),
-            State(dist.Moments.get_id('Forecast', 'std'), 'value')
-        ]
+        Output('elicitation', 'children'),
+        [Input('url', 'search')]
     )
-    def record_response(_, search, lb, ub, mean, std):
+    def update_elicitation(search):
         try:
-            Dashboard.record_response(search, [lb, ub, mean, std])
+            dashboard = Dashboard.get(search)
+            bins = dashboard.g['bins']
+            prob = dashboard.g['prob']
         except:
-            print('WARNING Unable to record response')
+            print('Cannot find dashboard')
+            bins = [0, .25, .5, .75, 1]
+            prob = [1./(len(bins)-1)] * (len(bins)-1)
+        return Table(
+            'Forecast', bins, prob, 
+            editable_cols=['pdf', 'cdf'], scalable=True, smoother=True
+        )
 
     @app.callback(
         Output('graphs', 'children'),
-        [
-            Input(dist.Moments.get_id('Forecast'), 'children'),
-            Input(fcast.Table.get_id('Table'), 'children')
-        ]
+        [Input('url', 'search'), Input(Table.get_id('Forecast'), 'children')]
     )
-    def update_graphs(dist_state, table_state):
-        distribution = dist.Moments.load(dist_state)
-        table = fcast.Table.load(table_state)
+    def update_graphs(search, dist_state):
+        distribution = Table.load(dist_state)
+        try:
+            Dashboard.record_response(search, distribution.dump())
+        except:
+            print('Unable to record forecast')
         pdf = go.Figure([
-            distribution.pdf_plot(), table.bar_plot('Forecast', opacity=.4)
+            distribution.pdf_plot(), distribution.bar_plot(opacity=.4)
         ])
         pdf.update_layout(
             transition_duration=500,
             title='Probability',
             showlegend=False
         )
-        cdf = go.Figure([distribution.cdf_plot()])
-        cdf.update_layout(
-            transition_duration=500,
-            title='Cumulative probability'
-        )
-        return [
-            dbc.Row([
-                dbc.Col([
-                    dcc.Graph(figure=pdf)
-                ]),
-                dbc.Col([
-                    dcc.Graph(figure=cdf)
-                ])
-            ])
-        ]
+        return [dcc.Graph(figure=pdf)]
 
     return app
+
+
+class Table(dist.Table):
+    def get_columns(self, *args, **kwargs):
+        cols = super().get_columns(*args, **kwargs)
+        for col in cols:
+            if col['id'] in ('bin-start', 'bin-end'):
+                col['format'] = Format(scheme=Scheme.fixed, precision=2)
+        return cols
 
 if __name__ == '__main__':
     app = create_fcast_app()

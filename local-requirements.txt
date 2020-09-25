@@ -1,4 +1,4 @@
-dash-fcast==0.0.3
+dash-fcast==0.0.5
 hemlock-survey>=0.0.19
 ipykernel>=5.3.4
 pyyaml>=5.3.1
