@@ -1,4 +1,7 @@
 dash-fcast==0.0.5
 gunicorn>=20.0.4
-hemlock-survey>=0.0.19
+hemlock-berlin==0.0.2
+hemlock-crt==0.0.2
+hemlock-demographics==0.0.2
+hemlock-survey>=0.0.24
 psycopg2>=2.8.4

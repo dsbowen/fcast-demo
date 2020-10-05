@@ -5,6 +5,9 @@ import dash_fcast.distributions as dist
 import numpy as np
 from hemlock import Branch, Dashboard, Embedded, Label, Navigate as N, Page, Submit as S, route
 from hemlock.tools import comprehension_check
+from hemlock_berlin import berlin
+from hemlock_crt import crt
+from hemlock_demographics import basic_demographics
 
 from random import choice, shuffle
 
@@ -15,7 +18,9 @@ N_BINS = [3, 4, 5, 8]
 def start():
     return Branch(
         Page(Label(texts.consent_label)),
-        Page(Label('<p>Individual difference measures here.</p>')),
+        basic_demographics(page=True),
+        *crt(page=True),
+        berlin(),
         navigate=N.comprehension()
     )
 
@@ -24,7 +29,7 @@ def comprehension(origin=None):
     return Branch(
         *comprehension_check(
             instructions=Page(
-                Label('<p>Instructional video embedded here.</p>')
+                Label('<p>Instructions here.</p>')
             ),
             checks=Page(
                 gen_dashboard(
@@ -64,7 +69,9 @@ def fcast(origin=None):
     n_bins_list = [choice(N_BINS) for q in questions]
     fcast_pages = [
         Page(
-            gen_dashboard(label, n_bins=n_bins, var='Forecast'), 
+            gen_dashboard(
+                label, n_bins=n_bins, var='Forecast', record_order=True
+            ), 
             timer_var='ForecastTimer',
             embedded=[Embedded('Variable', var), Embedded('NBins', n_bins)]
         )
