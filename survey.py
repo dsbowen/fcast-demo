@@ -72,7 +72,7 @@ def fcast(origin=None):
             gen_dashboard(
                 label, n_bins=n_bins, var='Forecast', record_order=True
             ), 
-            timer_var='ForecastTimer',
+            timer='ForecastTimer',
             embedded=[Embedded('Variable', var), Embedded('NBins', n_bins)]
         )
         for (var, label), n_bins in zip(questions, n_bins_list)

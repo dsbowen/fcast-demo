@@ -36,7 +36,9 @@ def create_fcast_app(server=None):
                 ], className='h-100')
             ]),
             dbc.Col([
-                html.Div(id='graphs')
+                html.Div([
+                    html.P('Loading graph. This may take several seconds.') 
+                ], id='graphs')
             ])
         ])
     ], className='container')
