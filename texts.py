@@ -1,10 +1,21 @@
 import numpy as np
 
 consent_label = '''
-<p>
-    This is a consent page. By continuing with the survey, you consent to 
-    transfer ownership of your first-born child to the Tetlock lab.
-</p>
+<p>Hello! We are researchers at the University of Pennsylvania and are interested how you look forward to predict the future. We will show you some questions about the future and ask you to make a series of judgments. Please read the information below and if you wish to participate, indicate your consent.</p>
+
+<p><b>Purpose.</b> The purpose of this study is to explore how people think about the future.</p> 
+
+<p><b>Procedure.</b> You will be asked to complete a survey that will take approximately 20 minutes.</p> 
+
+<p><b>Benefits & Compensation.</b> If you complete the survey, we will pay you the WBL rate. In addition, you will receive a bonus of $25 if you are one of the 8 most accurate participants in the study.</p> 
+
+<p><b>Risks.</b> There are no known risks or discomforts associated with participating in this study.</p> 
+
+<p>Participation in this research is completely voluntary. You can decline to participate or withdraw at any point in this study without penalty though you will not be paid.</p> 
+
+<p><b>Confidentiality.</b> Every effort will be made to protect your confidentiality. Your personal identifying information will not be connected to the answers that you put into this survey, so we will have no way of identifying you. We will retain anonymized data for up to 5 years after the results of the study are published, to comply with American Psychological Association data-retention rules.</p> 
+
+<p><b>Questions</b> Please contact the experimenters if you have concerns or questions: mellers@wharton.upenn.edu. You may also contact the office of the University of Pennsylvania’s Committee for the Protection of Human Subjects, at 215.573.2540 or via email at irb@pobox.upenn.edu.</p>
 '''
 
 # questions the participant should forecast

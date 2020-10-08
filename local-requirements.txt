@@ -1,7 +1,7 @@
 dash-fcast==0.0.5
 hemlock-berlin==0.0.2
 hemlock-crt==0.0.2
-hemlock-demographics==0.0.2
-hemlock-survey>=0.0.24
+hemlock-demographics==0.0.3
+hemlock-survey>=0.0.26
 ipykernel>=5.3.4
 pyyaml>=5.3.1

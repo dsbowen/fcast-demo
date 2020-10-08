@@ -3,8 +3,8 @@ import texts
 
 import dash_fcast.distributions as dist
 import numpy as np
-from hemlock import Branch, Dashboard, Embedded, Label, Navigate as N, Page, Submit as S, route
-from hemlock.tools import comprehension_check
+from hemlock import Branch, Dashboard, Embedded, Label, Navigate as N, Page, Submit as S, route, settings
+from hemlock.tools import Vid, comprehension_check
 from hemlock_berlin import berlin
 from hemlock_crt import crt
 from hemlock_demographics import demographics
@@ -12,9 +12,11 @@ from hemlock_demographics import demographics
 from random import choice, shuffle
 
 # possible number of bins to display to participants
-N_BINS = [3, 4, 5, 8]
+N_BINS = list(range(3, 9))
 
-# @route('/survey')
+settings['collect_IP'] = False
+
+@route('/survey')
 def start():
     return Branch(
         Page(Label(texts.consent_label)),
@@ -24,7 +26,10 @@ def start():
         navigate=N.comprehension()
     )
 
-@route('/survey')
+instructions_vid = Vid.from_youtube(
+    'https://www.youtube.com/watch?v=66lav65RdRc',
+).render()
+
 @N.register
 def comprehension(origin=None):
     lb, ub = fcast_app.correct_bins[0], fcast_app.correct_bins[-1]
@@ -33,7 +38,12 @@ def comprehension(origin=None):
     return Branch(
         *comprehension_check(
             instructions=Page(
-                Label('<p>Instructions here.</p>')
+                Label(
+                    '''
+                    <p>Watch the full instructional video before continuing.
+                    </p>
+                    ''' + instructions_vid
+                )
             ),
             checks=Page(
                 gen_dashboard(
@@ -45,6 +55,7 @@ def comprehension(origin=None):
                 ),
                 back=True
             ),
+            attempts=3
         ),
         navigate=N.fcast()
     )
@@ -66,12 +77,15 @@ def gen_dashboard(
 
 @S.register
 def verify_fcast(dashboard):
-    distribution = dist.Table.load(dashboard.response)
-    bins = list(np.round(distribution.bins, 2))
-    dashboard.data = int(
-        bins == fcast_app.correct_bins 
-        and distribution.prob == fcast_app.correct_prob
-    )
+    try:
+        distribution = dist.Table.load(dashboard.response)
+        bins = list(np.round(distribution.bins, 2))
+        dashboard.data = int(
+            bins == fcast_app.correct_bins 
+            and distribution.prob == fcast_app.correct_prob
+        )
+    except:
+        dashboard.data = 0
 
 @N.register
 def fcast(origin=None):
