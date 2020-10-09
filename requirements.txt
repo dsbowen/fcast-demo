@@ -3,5 +3,5 @@ gunicorn>=20.0.4
 hemlock-berlin==0.0.2
 hemlock-crt==0.0.2
 hemlock-demographics==0.0.3
-hemlock-survey>=0.0.26
+hemlock-survey>=0.0.27
 psycopg2>=2.8.4

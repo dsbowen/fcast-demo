@@ -3,7 +3,7 @@ import texts
 
 import dash_fcast.distributions as dist
 import numpy as np
-from hemlock import Branch, Dashboard, Embedded, Label, Navigate as N, Page, Submit as S, route, settings
+from hemlock import Branch, Check, Dashboard, Embedded, Label, Navigate as N, Page, Submit as S, Validate as V, route, settings
 from hemlock.tools import Vid, comprehension_check
 from hemlock_berlin import berlin
 from hemlock_crt import crt
@@ -19,7 +19,16 @@ settings['collect_IP'] = False
 @route('/survey')
 def start():
     return Branch(
-        Page(Label(texts.consent_label)),
+        Page(
+            Label(texts.consent_label),
+            Check(
+                choices=[('I consent to participate', 'consent')],
+                validate=V.correct_choices(
+                    'consent', 
+                    error_msg='<p>Please consent to participate.</p>'
+                )
+            )
+        ),
         demographics('age_bins', 'gender', 'race', 'education', page=True),
         *crt(page=True),
         berlin(),
