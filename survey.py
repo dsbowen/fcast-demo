@@ -15,7 +15,7 @@ from random import choice, shuffle
 N_BINS = list(range(3, 9))
 
 settings['collect_IP'] = False
-settings['duplicate_keys'] = ['IPv4', 'workerId']
+settings['duplicate_keys'] = ['workerId']
 settings['restart_option'] = False
 
 @route('/survey')
