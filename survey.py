@@ -15,6 +15,8 @@ from random import choice, shuffle
 N_BINS = list(range(3, 9))
 
 settings['collect_IP'] = False
+settings['duplicate_keys'] = ['IPv4', 'workerId']
+settings['restart_option'] = False
 
 @route('/survey')
 def start():
@@ -29,9 +31,12 @@ def start():
                 )
             )
         ),
-        demographics('age_bins', 'gender', 'race', 'education', page=True),
-        *crt(page=True),
-        berlin(),
+        demographics(
+            'age_bins', 'gender', 'race', 'education', 
+            page=True, require=True
+        ),
+        *crt(page=True, require=True),
+        berlin(require=True),
         navigate=N.comprehension()
     )
 
@@ -52,7 +57,8 @@ def comprehension(origin=None):
                     <p>Watch the full instructional video before continuing.
                     </p>
                     ''' + instructions_vid
-                )
+                ),
+                timer=('InstructionsTime', -1)
             ),
             checks=Page(
                 gen_dashboard(
@@ -109,16 +115,23 @@ def fcast(origin=None):
                 var='Forecast', 
                 record_order=True
             ), 
-            timer='ForecastTimer',
+            timer='ForecastTime',
             embedded=[Embedded('Variable', var), Embedded('NBins', n_bins)]
         )
         for (var, label), n_bins in zip(questions, n_bins_list)
     ]
     shuffle(fcast_pages)
+    for i, page in enumerate(fcast_pages):
+        page.questions.insert(
+            0, 
+            Label(
+                '<p><b>Question {} of {}</b></p>'.format(i+1, len(fcast_pages))
+            )
+        )
     return Branch(
         *fcast_pages,
         Page(
-            Label('<p>The end.</p>'), 
+            Label(texts.completion), 
             terminal=True
         )
     )
